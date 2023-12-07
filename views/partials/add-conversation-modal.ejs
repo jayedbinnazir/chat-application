@@ -63,6 +63,7 @@
 
   // send request for search
   async function searchUsers() {
+    console.log("search user alled")
     let response = await fetch("/inbox/search", {
       method: "POST",
       body: JSON.stringify({

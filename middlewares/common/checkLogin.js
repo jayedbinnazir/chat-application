@@ -15,8 +15,8 @@ function checkLogin(req,res,next){
             //for html response
             if(res.locals.html) {
                 res.locals.loggedInUser = decoded ;
-                next()
-            }
+              }
+              next()
 
         } catch(err){
             //authentication failure if cookie is not found

@@ -10,7 +10,7 @@ const notFoundHandler=(req,res,next)=>{
 //common error handler 
 
 const errorHandler=(err,req,res,next)=>{
-    console.log(err)
+    
     res.locals.error = process.env.NODE_ENV.trim() === 'development' ? err : { message:err.message }
     res.status( err.status || 500 )
         if(res.locals.html){
