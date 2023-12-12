@@ -10,8 +10,8 @@ async function getInbox(req,res,next){
   try {
     const conversations = await Conversation.find({
       $or:[
-        {"creator.id": req.user.userId },
-        { "participant.id": req.user.userId }
+        {"creator.id": req.user.userid },
+        { "participant.id": req.user.userid }
       ]
     })
 
@@ -73,13 +73,13 @@ async function addConversation(req,res,next){
 
     const newConversation = new Conversation({
       creator:{
-       id:req.user.userId ,
+       id:req.user.userid ,
        name:req.user.username,
        avatar:req.user.avatar
  
       },
       participant:{
-       id: req.body.participant_id ,
+       id: req.body.id ,
        name:req.body.participant,
        avatar:req.body.avatar
       }
