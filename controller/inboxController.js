@@ -4,6 +4,7 @@
 const escape = require("../utility/escape");
 const User = require("../models/people");
 const Conversation = require("../models/Conversation");
+const Message = require("../models/Message");
 
  
 async function getInbox(req,res,next){
@@ -15,7 +16,6 @@ async function getInbox(req,res,next){
       ]
     })
 
-    console.log(conversations)
     res.locals.data = conversations ;
     res.render('inbox')
 
@@ -103,13 +103,120 @@ async function addConversation(req,res,next){
     });
   }
 
- 
+}
 
+async function getMessages(req,res,next){
+  //if the messages are availabe than sent response of information to the client
+  try{
+    //get the message docs by conversation id
+    const messages = await Message.find({
+      conversation_id: req.params.conversation_id
+    }).sort("-createdAt")
+
+    
+    // get the participant of that conversation
+    const { participant } = await Conversation.findById(
+      req.params.conversation_id
+    )
+
+    //send necessary info as json response
+    res.status(200).json({
+      data: {
+        messages: messages,
+        participant,
+      },
+      user: req.user.userid,
+      conversation_id: req.params.conversation_id,
+    });
+
+  } catch(err){
+    res.status(500).json({
+      errors: {
+        common: {
+          msg: "error in getting messages!",
+        },
+      },
+    });
+
+  }
 
 }
+
+//send meessage and update database
+async function sendMessage(req, res, next) {
+  if (req.body.message || (req.files && req.files.length > 0)) {
+    try {
+      // save message text/attachment in database
+      let attachments = null;
+
+      if (req.files && req.files.length > 0) {
+        attachments = [];
+
+        req.files.forEach((file) => {
+          attachments.push(file.filename);
+        });
+      }
+
+      const newMessage = new Message({
+        text: req.body.message,
+        attachment: attachments,
+        sender: {
+          id: req.user.userid,
+          name: req.user.username,
+          avatar: req.user.avatar || null,
+        },
+        receiver: {
+          id: req.body.receiverId,
+          name: req.body.receiverName,
+          avatar: req.body.avatar || null,
+        },
+        conversation_id: req.body.conversationId,
+      });
+
+      const result = await newMessage.save();
+
+      // emit socket event
+      global.io.emit("new_message", {
+        message: {
+          conversation_id: req.body.conversationId,
+          sender: {
+            id: req.user.userid,
+            name: req.user.username,
+            avatar: req.user.avatar || null,
+          },
+          message: req.body.message,
+          attachment: attachments,
+          date_time: result.date_time,
+        },
+      });
+
+      res.status(200).json({
+        message: "Successful!",
+        data: result,
+      });
+    } catch (err) {
+      res.status(500).json({
+        errors: {
+          common: {
+            msg: err.message,
+          },
+        },
+      });
+    }
+  } else {
+    res.status(500).json({
+      errors: {
+        common: "message text or attachment is required!",
+      },
+    });
+  }
+}
+
 
 module.exports = {
     getInbox,
     searchUser,
-    addConversation
+    addConversation,
+    getMessages,
+    sendMessage
 }

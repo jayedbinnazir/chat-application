@@ -3,6 +3,8 @@ const express = require('express') ;
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser')
 const path = require('path');
+const moment = require("moment");
+
 
 
 //internal imports
@@ -31,6 +33,8 @@ mongoose.connect(process.env.MONGO_CONNECTION_STRING)
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(cookieParser(process.env.COOKIE_SECRET));
+app.locals.moment = moment;
+
 
 //set engines
 
