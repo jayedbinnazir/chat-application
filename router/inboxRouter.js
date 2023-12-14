@@ -2,9 +2,12 @@ const express = require('express');
 const { getInbox, searchUser, addConversation, getMessages, sendMessage } = require('../controller/inboxController');
 const decorateHtmlResponse = require('../middlewares/common/decorateHtmlResponse');
 const { checkLogin } = require('../middlewares/common/checkLogin');
+const multer  = require('multer');
+const attachmentUpload = require('../middlewares/inbox/attachmentUpload');
 
 const router = express.Router();
 const page_title = "Inbox"
+const upload = multer()
 
 
 //get inbox page
@@ -22,6 +25,6 @@ router.get('/messages/:conversation_id' , checkLogin , getMessages ) // get conv
 
 // send messages and update the message database
 
-router.post("/message" , checkLogin , sendMessage  )
+router.post("/message" , checkLogin , attachmentUpload  , sendMessage  )
 
 module.exports = router ;
