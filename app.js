@@ -4,6 +4,8 @@ const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser')
 const path = require('path');
 const moment = require("moment");
+const http = require("http");
+
 
 
 
@@ -22,6 +24,14 @@ dotenv.config()
 //creating the main server
 const app = express()
 
+const server = http.createServer(app);
+
+// socket creation
+const io = require("socket.io")(server);
+global.io = io;
+
+app.locals.moment = moment;
+
 //DATABASE connection
 mongoose.connect(process.env.MONGO_CONNECTION_STRING)
         .then(()=>console.log('Database connection successfull'))
@@ -33,7 +43,6 @@ mongoose.connect(process.env.MONGO_CONNECTION_STRING)
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(cookieParser(process.env.COOKIE_SECRET));
-app.locals.moment = moment;
 
 
 //set engines
@@ -69,6 +78,6 @@ app.use(errorHandler)
 
 
 // ruunning the server
-app.listen(process.env.PORT,()=>{
+server.listen(process.env.PORT,()=>{
     console.log(`server is running on port ${process.env.PORT}`)
 })
