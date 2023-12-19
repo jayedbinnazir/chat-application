@@ -4,9 +4,7 @@
   "description": "real-time-chat-application",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "set NODE_ENV=development&& nodemon app.js",
-    "production": "set NODE_ENV=production&& node app.js"
+    "start": "set NODE_ENV=production&& node app.js"
   },
   "author": "Jaye Bin Nazir",
   "license": "ISC",
